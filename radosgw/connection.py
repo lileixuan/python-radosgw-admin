@@ -270,6 +270,24 @@ class RadosGWAdminConnection(boto.connection.AWSAuthConnection):
         response = self.make_request('DELETE', path='/user', query_params=params)
         return self._process_response(response) is None
 
+    def delete_key(self,  **kwargs):
+        """Remove an existing key.
+        :param str uid: the user_id
+        :param str key_type: the key_type 's3' or 'swift'. Default: 's3'
+        :param str access_key: the access key
+        :param str subuser: the subuser to remove the key from
+        :returns bool:
+        :see: http://docs.ceph.com/docs/master/radosgw/adminops/#remove-key
+        """
+        params = {}
+        _kwargs_get('format', kwargs, params, 'json')
+        _kwargs_get('uid', kwargs, params)
+        _kwargs_get('access_key', kwargs, params)
+        _kwargs_get('subuser', kwargs, params)
+        _kwargs_get('key_type', kwargs, params)
+        response = self.make_request('DELETE', path='/user?key', query_params=params)
+        return self._process_response(response) is None
+
     def get_bucket(self, bucket_name, **kwargs):
         """Get a bucket information.
         :param str bucket_name: the bucket name
