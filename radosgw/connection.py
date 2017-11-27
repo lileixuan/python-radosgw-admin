@@ -288,6 +288,50 @@ class RadosGWAdminConnection(boto.connection.AWSAuthConnection):
         response = self.make_request('DELETE', path='/user?key', query_params=params)
         return self._process_response(response) is None
 
+    def get_quota(self, uid, **kwargs):
+        """Get the quota information.
+        :param str uid: the user id
+        :param str quota_type: the quota-type option sets the scope for the quota. the options are bucket and user.
+        :returns dict info.: the quota info
+        :throws radosgw.exception.RadosGWAdminError: if an error occurs
+        :see: http://ceph.com/docs/next/radosgw/adminops/#quotas
+        """
+        # mandatory query parameters
+        params = {'uid': uid}
+        # optional query parameters
+        _kwargs_get('format', kwargs, params, 'json')
+        _kwargs_get('quota_type', kwargs, params, 'user')
+        response = self.make_request('GET', path='/user?quota', query_params=params)
+        body = self._process_response(response)
+        quota_dict = json.loads(body)
+        return quota_dict
+
+
+    def set_quota(self, uid, **kwargs):
+        """Set the quota information.
+        :param str uid: the user id
+        :param str max_objects: The max-objects setting allows you to specify the maximum number of objects. A negative value disables this setting.
+        :param str max_size: The max-size option allows you to specify a quota for the maximum number of bytes. A negative value disables this setting.
+        :param str enabled: The enabled option specifies whether the quota should be enabled. The value should be either True or False.
+        :param str bucket: The bucket option allows you to specify a quota for buckets owned by a user.
+        :param str quota_type: the quota-type option sets the scope for the quota. the options are bucket and user.
+        :returns bool:
+        :throws radosgw.exception.RadosGWAdminError: if an error occurs
+        :see: http://ceph.com/docs/next/radosgw/adminops/#quotas
+        """
+        # mandatory query parameters
+        params = {'uid': uid}
+        # optional query parameters
+        _kwargs_get('format', kwargs, params, 'json')
+        _kwargs_get('quota_type', kwargs, params, 'user')
+        _kwargs_get('max_objects', kwargs, params)
+        _kwargs_get('max_size_kb', kwargs, params)
+        _kwargs_get('enabled', kwargs, params, True)
+        _kwargs_get('bucket', kwargs, params)
+
+        response = self.make_request('PUT', path='/user?quota', query_params=params)
+        return self._process_response(response) is None
+
     def get_bucket(self, bucket_name, **kwargs):
         """Get a bucket information.
         :param str bucket_name: the bucket name
