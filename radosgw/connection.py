@@ -329,9 +329,6 @@ class RadosGWAdminConnection(boto.connection.AWSAuthConnection):
         _kwargs_get('enabled', kwargs, params, True)
         _kwargs_get('bucket', kwargs, params)
 
-        if params.get('max-size-kb') == 0:
-            params['max-size-kb'] = -1
-
         response = self.make_request('PUT', path='/user?quota', query_params=params)
         return self._process_response(response) is None
 
